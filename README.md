@@ -90,7 +90,7 @@ Your handler method is passed an `args` object containing information about the 
 
 After your API method is complete, invoke the `callback` function.  Pass it an object, which will be serialized to JSON and sent back to the client.  It is up to you how to handle errors, but the standard way is to include a `code` property, set to `0` for success, and any other value for error.  Pass the error message in a `description` property, which can be omitted on success.
 
-The data passed to the callback function is sent directly to the web server, which actually accepts several formats.  See [Sending Responses](https://www.npmjs.com/package/pixl-server-web#sending-responses] for details on how to send custom HTTP responses.
+The data passed to the callback function is sent directly to the web server, which actually accepts several formats.  See [Sending Responses](https://www.npmjs.com/package/pixl-server-web#sending-responses) for details on how to send custom HTTP responses.
 
 # Adding API Namespaces
 
