@@ -53,6 +53,9 @@ module.exports = Class.create({
 		var regex = new RegExp( Tools.escapeRegExp(this.config.get('base_uri')) + "/(\\w+)" );
 		this.server.WebServer.addURIHandler( regex, "API", this.handler.bind(this) );
 		
+		// save regex for later (internal invoke)
+		this.uri_regex = regex;
+		
 		callback();
 	},
 	
@@ -83,26 +86,58 @@ module.exports = Class.create({
 					ns.obj[subname]( args, callback );
 				}
 				else {
+					var err_msg = "Unsupported API: " + name + "/" + subname;
+					this.logError('api', err_msg);
 					callback({
 						code: 1,
-						description: "Unsupported API: " + name + "/" + subname
+						description: err_msg
 					});
 				}
 			}
 			else {
+				var err_msg = "Invalid API URL: " + uri;
+				this.logError('api', err_msg);
 				callback({
 					code: 1,
-					description: "Invalid API URL: " + uri
+					description: err_msg
 				});
 			}
 		}
 		else {
 			// Not found
+			var err_msg = "Unsupported API: " + name;
+			this.logError('api', err_msg);
 			callback({
 				code: 1,
-				description: "Unsupported API: " + name
+				description: err_msg
 			});
 		}
+	},
+	
+	invoke: function(uri, params, callback) {
+		// invoke a JSON API internally, and capture the response
+		var args = {
+			request: {
+				method: "INTERNAL",
+				url: uri,
+				headers: { 'host': 'Internal', 'user-agent': 'Internal' }
+			},
+			response: {},
+			query: Tools.parseQueryString(uri),
+			matches: uri.match( this.uri_regex ),
+			params: params,
+			files: {},
+			cookies: {},
+			ip: '0.0.0.0',
+			ips: ['0.0.0.0'],
+			server: this.server
+		};
+		
+		if (!args.matches) {
+			return callback({ code: 1, description: "Invalid API URL: " + uri });
+		}
+		
+		this.handler( args, callback );
 	},
 	
 	shutdown: function(callback) {
