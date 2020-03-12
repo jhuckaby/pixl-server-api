@@ -65,6 +65,9 @@ module.exports = Class.create({
 		var name = args.matches[1]; // /api/add_user
 		name = this.normalizeAPIName(name);
 		
+		// make sure params is an object
+		if (!Tools.isaHash(args.params)) args.params = {};
+		
 		this.logDebug(6, "Handling API request: " + args.request.method + ' ' + args.request.url, args.query);
 		this.logDebug(9, "API Params", args.params );
 		
