@@ -113,7 +113,7 @@ module.exports = class MyStorageAPI extends Component {
 		this.storage = this.server.Storage;
 		this.server.API.addNamespace( "storage", "api_", this );
 		callback();
-	},
+	}
 	
 	api_set(args, callback) {
 		// set key in storage
@@ -121,7 +121,7 @@ module.exports = class MyStorageAPI extends Component {
 			if (err) callback({ code: 1, description: err.message });
 			else callback({ code: 0 });
 		} );
-	},
+	}
 	
 	api_get(args, callback) {
 		// get key from storage
