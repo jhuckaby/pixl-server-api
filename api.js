@@ -68,7 +68,7 @@ module.exports = Class.create({
 		// make sure params is an object
 		if (!Tools.isaHash(args.params)) args.params = {};
 		
-		this.emit('request', args);
+		this.emit('request', args, callback);
 		
 		this.logDebug(6, "Handling API request: " + args.request.method + ' ' + args.request.url, args.query);
 		this.logDebug(9, "API Params", args.params );
