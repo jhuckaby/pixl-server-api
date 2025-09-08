@@ -71,7 +71,10 @@ module.exports = Class.create({
 		this.emit('request', args, callback);
 		
 		this.logDebug(6, "Handling API request: " + args.request.method + ' ' + args.request.url, args.query);
-		this.logDebug(9, "API Params", args.params );
+		if (this.server.debug) {
+			// only log details in server debug mode (security)
+			this.logDebug(9, "API request details", { params: args.params, files: args.files, cookies: args.cookies } );
+		}
 		
 		// Check root-level API handlers first
 		if (this.handlers[name]) {
