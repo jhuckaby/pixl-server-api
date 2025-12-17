@@ -61,6 +61,7 @@ module.exports = Class.create({
 	
 	handler: function(args, callback) {
 		// handle API request, delegate to class or method
+		var self = this;
 		var uri = args.request.url.replace(/\?.*$/, '');
 		var name = args.matches[1]; // /api/add_user
 		name = this.normalizeAPIName(name);
@@ -69,6 +70,12 @@ module.exports = Class.create({
 		if (!Tools.isaHash(args.params)) args.params = {};
 		
 		this.emit('request', args, callback);
+		
+		// wrap callback so we can emit a response event
+		var finish = this.listenerCount('response') ? function(...resArgs) {
+			self.emit('response', args, resArgs);
+			callback.apply( null, resArgs );
+		} : callback;
 		
 		this.logDebug(6, "Handling API request: " + args.request.method + ' ' + args.request.url, args.query);
 		if (this.server.debug) {
@@ -79,7 +86,7 @@ module.exports = Class.create({
 		// Check root-level API handlers first
 		if (this.handlers[name]) {
 			this.logDebug(9, "Activating API handler: " + name + " for URI: " + uri);
-			this.handlers[name]( args, callback );
+			this.handlers[name]( args, finish );
 		}
 		else if (this.namespaces[name]) {
 			// We have a class handling this namespace
@@ -91,12 +98,12 @@ module.exports = Class.create({
 				if (subname in ns.obj) {
 					// Namespace class supports the API call
 					this.logDebug(9, "Activating namespaced API handler: " + name + "/" + subname + " for URI: " + uri);
-					ns.obj[subname]( args, callback );
+					ns.obj[subname]( args, finish );
 				}
 				else {
 					var err_msg = "Unsupported API: " + name + "/" + subname;
 					this.logError('api', err_msg);
-					callback({
+					finish({
 						code: 1,
 						description: err_msg
 					});
@@ -105,7 +112,7 @@ module.exports = Class.create({
 			else {
 				var err_msg = "Invalid API URL: " + uri;
 				this.logError('api', err_msg);
-				callback({
+				finish({
 					code: 1,
 					description: err_msg
 				});
@@ -115,7 +122,7 @@ module.exports = Class.create({
 			// Not found
 			var err_msg = "Unsupported API: " + name;
 			this.logError('api', err_msg);
-			callback({
+			finish({
 				code: 1,
 				description: err_msg
 			});
