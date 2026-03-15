@@ -80,7 +80,15 @@ module.exports = Class.create({
 		this.logDebug(6, "Handling API request: " + args.request.method + ' ' + args.request.url, args.query);
 		if (this.server.debug) {
 			// only log details in server debug mode (security)
-			this.logDebug(9, "API request details", { params: args.params, files: args.files, cookies: args.cookies } );
+			this.logDebug(9, "API request details", { 
+				method: args.request.method, 
+				uri: args.request.url, 
+				params: args.params, 
+				files: args.files, 
+				cookies: args.cookies, 
+				headers: args.request.headers,
+				ips: args.ips
+			} );
 		}
 		
 		// Check root-level API handlers first
